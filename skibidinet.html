@@ -1,0 +1,189 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>SKIBIDINET</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600;700;800&family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body class="theme-skib" data-app="skibidinet">
+  <div class="bg" aria-hidden="true">
+    <div class="noise"></div>
+    <div class="grid"></div>
+    <div class="blobs">
+      <span class="blob b1"></span>
+      <span class="blob b2"></span>
+      <span class="blob b3"></span>
+      <span class="blob b4"></span>
+    </div>
+  </div>
+
+  <header class="topbarFixed" id="topbar">
+    <button class="brand" id="brand" type="button" title="На главную">
+      <span class="brandName">SKIBIDINET</span>
+      <span class="brandSig">browser</span>
+    </button>
+
+    <form class="searchbar" id="searchForm" autocomplete="off">
+      <input id="q" spellcheck="false" placeholder="Поиск в SKIBIDINET…" />
+    </form>
+
+    <div class="topActions">
+      <button class="ghost" id="btnHome" type="button">Home</button>
+      <button class="ghost" id="btnClear" type="button">Clear</button>
+      <button class="ghost danger" id="btnClearRecents" type="button">Clear Recents</button>
+    </div>
+  </header>
+
+  <main class="desktop">
+    <section class="stage" id="tilt">
+      <div class="card" id="app">
+        <section class="home" id="home">
+          <div class="homeHero">
+            <div class="homeLogo">
+              <div class="homeTitle">SKIBIDINET</div>
+              <div class="homeSub">Тут просто интернет — недостаточно.</div>
+            </div>
+
+            <form class="homeSearch" id="homeSearchForm" autocomplete="off">
+              <input id="qHome" spellcheck="false" placeholder="Введите запрос и нажмите Enter…" />
+              <button class="btn" type="submit">Search</button>
+            </form>
+
+            <div class="homeMeta">
+              Нужно: Интернет + “Дробление пакетов”.
+            </div>
+          </div>
+
+          <div class="dock">
+            <div class="dockHead">
+              <div class="dockTitle">Последние посещения</div>
+              <div class="dockHint">кликабельно</div>
+            </div>
+            <div class="dockGrid" id="recentGrid"></div>
+          </div>
+        </section>
+
+        <section class="results" id="results" hidden>
+          <div class="resultsHead">
+            <div class="resultsTitle" id="resultsTitle">Результаты</div>
+            <div class="resultsMeta" id="resultsMeta"></div>
+          </div>
+
+          <div id="special" class="special" hidden></div>
+
+          <div class="errbox" id="errbox" hidden>
+            <div class="errTitle">Ничего не найдено</div>
+            <div class="errText" id="errtext"></div>
+          </div>
+
+          <div class="list" id="list"></div>
+        </section>
+
+        <div class="bubbles" id="bubbles" aria-hidden="true"></div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="taskbar" id="taskbar">
+    <div class="tbLeft">
+      <div class="tbApp">SKIBIDINET</div>
+    </div>
+
+    <div class="tbRight">
+      <button class="tbIcon" id="tbPackets" type="button" title="Дробление пакетов">
+        <span class="tbGlyph">▦</span>
+        <span class="tbText">Дробление пакетов</span>
+      </button>
+
+      <button class="tbIcon" id="tbNet" type="button" title="Интернет">
+        <span class="tbGlyph">⟠</span>
+        <span class="tbText" id="netStatusText">Интернет: OFF</span>
+      </button>
+    </div>
+  </footer>
+
+  <!-- INTERNET PANEL -->
+  <section class="panel" id="netPanel" hidden>
+    <div class="panelCard">
+      <div class="panelHead">
+        <div class="panelTitle">Интернет</div>
+        <button class="xbtn" id="netClose" type="button">×</button>
+      </div>
+
+      <div class="panelBlock">
+        <div class="label">Ручной ввод:</div>
+        <div class="row">
+          <input id="netManual" spellcheck="false" placeholder="Ввести код…" />
+          <button class="mini" id="netManualBtn" type="button">Ввести</button>
+        </div>
+        <div class="tiny" id="netManualHint">SKIBIDINET любит “коды”, но пароль нужен в другом месте.</div>
+      </div>
+
+      <div class="panelBlock">
+        <div class="label">Найденные сети</div>
+        <button class="network" id="wifiNet" type="button">
+          <div class="netName">WIFI-Pi33EMANIA</div>
+          <div class="netMeta">защищено</div>
+        </button>
+      </div>
+
+      <div class="panelBlock">
+        <button class="mini danger" id="netDisconnect" type="button">Отключиться</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- WIFI PASSWORD MODAL -->
+  <<section class="flyout" id="wifiModal" hidden>
+  <div class="flyCard">
+    <div class="flyHead">
+      <div class="flyTitle">WIFI-Pi33EMANIA</div>
+      <button class="xbtn" id="wifiClose" type="button">×</button>
+    </div>
+
+    <div class="flyBody">
+      <div class="label">Пароль:</div>
+      <input id="wifiPass" type="password" placeholder="Введите пароль…" />
+
+      <div class="row">
+        <button class="btn" id="wifiConnect" type="button">Подключиться</button>
+        <button class="ghost" id="wifiCancel" type="button">Отмена</button>
+      </div>
+
+      <div class="tiny" id="wifiMsg"></div>
+    </div>
+  </div>
+</section>
+
+  <!-- PACKETS MODAL -->
+  <section class="flyout" id="pktModal" hidden>
+  <div class="flyCard">
+    <div class="flyHead">
+      <div class="flyTitle">Дробление пакетов</div>
+      <button class="xbtn" id="pktClose" type="button">×</button>
+    </div>
+
+    <div class="flyBody">
+      <div class="label">Ключ доступа:</div>
+      <input id="pktPass" type="password" placeholder="Введите пароль…" />
+
+      <div class="row">
+        <button class="btn" id="pktEnable" type="button">Включить</button>
+        <button class="ghost" id="pktCancel" type="button">Отмена</button>
+      </div>
+
+      <div class="tiny" id="pktMsg"></div>
+    </div>
+  </div>
+</section>
+
+  <script src="skibidinet.js"></script>
+  <script src="app.js" defer></script>
+</body>
+</html>
