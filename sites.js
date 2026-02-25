@@ -48,8 +48,8 @@ window.SITES_DATA = [
   },
   {
     title: "Википедия",
-    description: "На ВикипедикЯ вы можете писать статьи на любые темы: от науки и технологий до искусства, культуры, философ...",
-    url: "https://wikipedika.webnode.page",
+    description: "На Википедия вы можете писать статьи на любые темы: от науки и технологий до искусства, культуры, философ...",
+    url: "https://eduardzlobin.github.io/wikibyedik/#/",
     tags: ["википедия", "википедикя", "Wikipedika", "ренат", "светлоликий", "вера", "религия", "пицца", "пица", "писся", "пися", "обучение", "Дробление пакетов"]
   },
   {
@@ -77,5 +77,6 @@ window.SITES_DATA = [
     tags: ["новости", "news", "пицемания", "pi33emania", "SIGNAL", "сигнал"]
   }
 ];
+
 
 console.log("SITES COUNT:", window.SITES_DATA.length);
