@@ -71,6 +71,12 @@ window.SITES_DATA = [
     tags: ["Клуб", "айди", "аккаунт", "регистрация"]
   },
   {
+    title: "Котелок Злобина | Огонёк",
+    description: "Спасите мир от гибели",
+    url: "https://eduardzlobin.github.io/Apocalypse/",
+    tags: ["Эдик", "пидар", "эдуард", "злобин", "приветь", "злобак", "педофил", "педик", "горох", "гороховый суп", "Котёл", "Огонь", "Огонёк", "Конец света", "огонек", "таймер"]
+  },
+  {
     title: "THELASTSIGNAL",
     description: "Срочные новости...",
     url: "https://eduardzlobin.github.io/THELASTSIGNALB/",
@@ -80,3 +86,4 @@ window.SITES_DATA = [
 
 
 console.log("SITES COUNT:", window.SITES_DATA.length);
+
