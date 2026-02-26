@@ -9,6 +9,7 @@ const bubbles = document.getElementById("bubbles");
 
 const brand = document.getElementById("brand");
 const btnHome = document.getElementById("btnHome");
+const btnHistory = document.getElementById("btnHistory");
 const btnClear = document.getElementById("btnClear");
 const btnClearRecents = document.getElementById("btnClearRecents");
 
@@ -71,14 +72,63 @@ const WIFI_SSID = "WIFI-Pi33EMANIA";
 const WIFI_PASSWORD = "6Cf8Vg2Bh1Nj7Mk9";
 const PACKET_PASSWORD = "Oo3Pa5Sz0Dx6Cf8Vg2Bh1Nj7Mk9Lp3Qw5";
 
+// ===== Network Monitor state (объявить ДО applyExtensions/boot) =====
+let monitorInterval = null;
+
 // storage keys
 const KEY_NET = "gladoon_net_connected_v1";         // boolean
 const KEY_PKT = "gladoon_packets_enabled_v1";        // boolean
 const KEY_SKIBI_SEEN = "gladoon_skibidinet_seen_v1"; // boolean (unlock icon)
 const KEY_RECENTS_BASE = "gladoon_recent_v1";        // we can split per world later if you want
 
-const RECENTS_KEY = KEY_RECENTS_BASE; // keep common for now
-const RECENTS_LIMIT = 6;
+const RECENTS_LIMIT = 12; // можно больше, раз плитки маленькие
+
+
+
+// ================= EXTENSIONS CORE =================
+const EXT_KEY = "gladoon_extensions_v1";
+
+function getExtensions(){
+  try{
+    return JSON.parse(localStorage.getItem(EXT_KEY)) || {};
+  }catch{
+    return {};
+  }
+}
+
+function setExtensions(data){
+  localStorage.setItem(EXT_KEY, JSON.stringify(data));
+}
+
+function enableExt(name){
+  const e = getExtensions();
+  e[name] = true;
+  setExtensions(e);
+  applyExtensions();
+}
+
+function disableExt(name){
+  const e = getExtensions();
+  delete e[name];
+  setExtensions(e);
+  applyExtensions();
+}
+
+function hasExt(name){
+  return !!getExtensions()[name];
+}
+
+function getMode(){
+  const file = (location.pathname.split("/").pop() || "index.html").toLowerCase();
+  return file.includes("skibidinet") ? "skibidinet" : "gladoon";
+}
+
+const MODE = getMode();
+
+// раздельные хранилища
+const RECENTS_KEY = MODE === "skibidinet"
+  ? "skibidinet_recent_v1"
+  : "gladoon_recent_v1";
 
 function escapeHtml(s){
   return String(s ?? "")
@@ -183,9 +233,21 @@ function pushRecent(site){
   renderRecents();
 }
 
+function saveHistory(site){
+  const arr = JSON.parse(localStorage.getItem(HISTORY_KEY)||"[]");
+  arr.unshift({
+    title:site.title,
+    url:site.url,
+    time:Date.now()
+  });
+  localStorage.setItem(HISTORY_KEY, JSON.stringify(arr.slice(0,50)));
+}
+
 function openSite(site){
+  if (hasExt("history")) saveHistory(site);
   pushRecent(site);
   window.open(site.url, "_blank", "noopener,noreferrer");
+  saveHistory(site);
 }
 
 function showHome(){
@@ -528,12 +590,39 @@ function scoreSite(site, queryNorm, tokens){
   return score;
 }
 
+function findClosestSite(query){
+  const q = normalize(query);
+  if (!q) return null;
+
+  let best = null;
+  let bestScore = 0;
+
+  for (const s of SITES){
+    const title = normalize(s.title);
+    let score = 0;
+
+    if (title.startsWith(q)) score += 5;
+    if (title.includes(q)) score += 3;
+
+    for (let i = 0; i < q.length; i++){
+      if (title.includes(q[i])) score += 1;
+    }
+
+    if (score > bestScore){
+      bestScore = score;
+      best = s;
+    }
+  }
+
+  return bestScore >= 3 ? best : null;
+}
+
 function searchSites(query){
   const queryNorm = normalize(query);
   const tokens = tokenize(query);
 
   if (!queryNorm){
-    return { error:"Пустой запрос. Введи хоть что-то." };
+    return { error:"Пустой запрос. Гладун вас не понимает." };
   }
 
   const scored = SITES
@@ -553,11 +642,33 @@ function renderResults(items, query, total){
     ? `Запрос: "${query}" • найдено: ${total}`
     : `Запрос: "${query}"`;
 
+  // ❌ ничего не найдено
   if (!items.length){
-    showError("Совпадений нет. Попробуй другое слово или более короткий фрагмент.");
+    showError("Совпадений нет.");
+
+    // 🔎 пытаемся угадать
+    const guess = findClosestSite(query);
+
+    if (guess){
+      const suggest = document.createElement("div");
+      suggest.className = "suggestBox";
+
+      suggest.innerHTML = `
+        Возможно вы имели в виду:
+        <span class="suggestLink">${escapeHtml(guess.title)}</span>
+      `;
+
+      suggest.querySelector(".suggestLink").addEventListener("click", () => {
+        openSite(guess);
+      });
+
+      list.appendChild(suggest);
+    }
+
     return;
   }
 
+  // обычный вывод
   const frag = document.createDocumentFragment();
   for (const s of items){
     const a = document.createElement("a");
@@ -586,7 +697,7 @@ function renderRecents(){
     empty.className = "tile";
     empty.style.cursor = "default";
     empty.innerHTML = `
-      <div class="tileTitle">Пусто</div>
+      <div class="tileTitle">Лента пуста.</div>
       <div class="tileDesc">Открой любой сайт — он появится здесь.</div>
     `;
     recentGrid.appendChild(empty);
@@ -622,7 +733,90 @@ function renderRecents(){
   recentGrid.appendChild(frag);
 }
 
+// ===== History+ storage key (раздельно для GLADOON / SKIBIDINET) =====
+const HISTORY_KEY = IS_SKIBI ? "skibi_history_v1" : "gladoon_history_v1";
+
+function getHistory(){
+  try{
+    const raw = localStorage.getItem(HISTORY_KEY);
+    const arr = raw ? JSON.parse(raw) : [];
+    return Array.isArray(arr) ? arr : [];
+  }catch{
+    return [];
+  }
+}
+
+function setHistory(arr){
+  localStorage.setItem(HISTORY_KEY, JSON.stringify(arr));
+}
+
+function saveHistory(site){
+  const arr = getHistory();
+  // уникальность по url
+  const filtered = arr.filter(x => x.url !== site.url);
+  filtered.unshift({
+    title: site.title,
+    url: site.url,
+    time: Date.now()
+  });
+  setHistory(filtered.slice(0, 80));
+}
+
 function doSearch(query){
+
+  // ===== HISTORY+ (локальная страница, должна работать даже без интернета) =====
+  const qnEarly = normalize(query);
+  if (qnEarly === "history" || qnEarly === "gladoon://history" || qnEarly === "skibidinet://history"){
+    showResults();
+    hideOfflineGame();
+    if (special){ special.innerHTML=""; special.hidden=true; }
+    list.innerHTML = "";
+    hideError();
+
+    if (!hasExt("history")){
+      showError("History+ не установлено. Открой 🧩 Расширения и включи History+.");
+      resultsTitle.textContent = "История";
+      resultsMeta.textContent = "Расширение отключено";
+      return;
+    }
+
+    const arr = getHistory();
+
+    resultsTitle.textContent = "История";
+    resultsMeta.textContent = arr.length
+      ? `Записей: ${arr.length} • локально (${IS_SKIBI ? "SKIBIDINET" : "GLADOON"})`
+      : `История пуста • локально (${IS_SKIBI ? "SKIBIDINET" : "GLADOON"})`;
+
+    if (!arr.length){
+      showError("История пуста. Открой пару сайтов — и они появятся здесь.");
+      return;
+    }
+
+    const frag = document.createDocumentFragment();
+    for (const h of arr){
+      const a = document.createElement("a");
+      a.className = "item";
+      a.href = h.url;
+
+      const time = new Date(h.time).toLocaleString();
+      a.innerHTML = `
+        <div class="itemTitle">${escapeHtml(h.title)}</div>
+        <div class="itemUrl">${escapeHtml(h.url)}</div>
+        <div class="itemDesc">${escapeHtml(time)}</div>
+      `;
+
+      a.addEventListener("click", (e) => {
+        e.preventDefault();
+        // в историю заново не пишем при открытии истории
+        window.open(h.url, "_blank", "noopener,noreferrer");
+      });
+
+      frag.appendChild(a);
+    }
+    list.appendChild(frag);
+    return;
+  }
+
   // 1) gate check (ВАЖНО: проверяем наш "интернет", а не navigator.onLine)
   const gate = canSearch();
 
@@ -947,4 +1141,126 @@ function loadSitesFromGlobal(){
     console.error(err);
     alert("Не смог загрузить список сайтов: " + (err?.message || err));
   }
+  applyExtensions();
 })();
+
+function findClosest(query){
+  const q = normalize(query);
+  let best = null;
+  let bestScore = 0;
+
+  for (const s of SITES){
+    const name = normalize(s.title);
+
+    let score = 0;
+
+    if (name.startsWith(q)) score += 5;
+    if (name.includes(q)) score += 3;
+
+    // совпадение по буквам
+    for (let i=0;i<q.length;i++){
+      if (name.includes(q[i])) score += 1;
+    }
+
+    if (score > bestScore){
+      bestScore = score;
+      best = s;
+    }
+  }
+
+  return bestScore > 2 ? best : null;
+}
+
+// ================= EXT PANEL =================
+const btnExt = document.getElementById("btnExt");
+const extWindow = document.getElementById("extWindow");
+const extList = document.getElementById("extList");
+const extClose = document.getElementById("extClose");
+
+btnExt?.addEventListener("click", () => {
+  extWindow.hidden = !extWindow.hidden;
+  renderExtensions();
+});
+
+extClose?.addEventListener("click", () => {
+  extWindow.hidden = true;
+});
+
+function renderExtensions(){
+  const installed = getExtensions();
+
+  const all = [
+    {id:"theme", name:"Theme Switcher"},
+    {id:"compact", name:"Compact Mode"},
+    {id:"monitor", name:"Network Monitor"},
+    {id:"history", name:"History+"}
+  ];
+
+  extList.innerHTML = "";
+
+  for(const e of all){
+    const div = document.createElement("div");
+    div.className = "extItem";
+
+    const active = installed[e.id];
+
+    div.innerHTML = `
+  <span class="extName">${e.name}</span>
+  <button data-state="${active ? "on" : "off"}">${active ? "Вкл" : "Выкл"}</button>
+  `;
+
+    div.querySelector("button").onclick = () => {
+      active ? disableExt(e.id) : enableExt(e.id);
+      renderExtensions();
+    };
+
+    extList.appendChild(div);
+  }
+}
+
+function applyExtensions(){
+  document.body.classList.toggle("ext-compact", hasExt("compact"));
+  document.body.classList.toggle("theme-dark", hasExt("theme"));
+
+  if(hasExt("monitor")) startMonitor();
+  else stopMonitor();
+  if (btnHistory) btnHistory.hidden = !hasExt("history");
+  btnHistory?.addEventListener("click", () => {
+  doSearch("history");
+});
+}
+
+function startMonitor(){
+  if (monitorInterval) return;
+
+  let el = document.getElementById("netMon");
+  if (!el){
+    el = document.createElement("div");
+    el.id = "netMon";
+    document.body.appendChild(el);
+  }
+
+  // позиция СЛЕВА над taskbar
+  el.style.position = "fixed";
+  el.style.left = "16px";     // ← теперь слева
+  el.style.bottom = "80px";   // ← над панелью задач
+  el.style.zIndex = "9999";
+  el.style.fontSize = "12px";
+  el.style.padding = "6px 10px";
+  el.style.borderRadius = "10px";
+  el.style.background = "rgba(0,0,0,.6)";
+  el.style.backdropFilter = "blur(6px)";
+  el.style.border = "1px solid rgba(255,255,255,.15)";
+  el.style.pointerEvents = "none";
+
+  monitorInterval = setInterval(()=>{
+    const ping = 20 + Math.floor(Math.random()*80);
+    el.textContent = "Пинг: " + ping + "ms";
+  }, 900);
+}
+
+function stopMonitor(){
+  clearInterval(monitorInterval);
+  monitorInterval = null;
+  document.getElementById("netMon")?.remove();
+}
