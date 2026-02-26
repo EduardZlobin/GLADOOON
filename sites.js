@@ -80,4 +80,3 @@ window.SITES_DATA = [
 
 
 console.log("SITES COUNT:", window.SITES_DATA.length);
-
