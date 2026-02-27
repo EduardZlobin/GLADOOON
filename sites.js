@@ -77,6 +77,12 @@ window.SITES_DATA = [
     tags: ["Эдик", "пидар", "эдуард", "злобин", "приветь", "злобак", "педофил", "педик", "горох", "гороховый суп", "Котёл", "Огонь", "Огонёк", "Конец света", "огонек", "таймер"]
   },
   {
+    title: "То самое что вы ищите",
+    description: "Всё что заприщено везде, доступно тут",
+    url: "https://renat25sad-cpu.github.io/prank/",
+    tags: ["порно", "прон", "читы", "взлом", "админ", "пиратство", "18+", "+18", "porn", "pron"]
+  },
+  {
     title: "THELASTSIGNAL",
     description: "Срочные новости...",
     url: "https://eduardzlobin.github.io/THELASTSIGNALB/",
@@ -86,4 +92,5 @@ window.SITES_DATA = [
 
 
 console.log("SITES COUNT:", window.SITES_DATA.length);
+
 
