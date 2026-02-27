@@ -80,7 +80,7 @@ window.SITES_DATA = [
     title: "То самое что вы ищите",
     description: "Всё что заприщено везде, доступно тут",
     url: "https://renat25sad-cpu.github.io/prank/",
-    tags: ["порно", "прон", "читы", "взлом", "админ", "пиратство", "18+", "+18", "porn", "pron"]
+    tags: ["порно", "прон", "читы", "взлом", "админ", "пиратство", "18+", "+18", "porn", "pron", "моды". "майнкрафт"]
   },
   {
     title: "THELASTSIGNAL",
@@ -92,5 +92,6 @@ window.SITES_DATA = [
 
 
 console.log("SITES COUNT:", window.SITES_DATA.length);
+
 
 
