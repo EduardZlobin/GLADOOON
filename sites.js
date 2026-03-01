@@ -85,13 +85,14 @@ window.SITES_DATA = [
   {
     title: "THELASTSIGNAL",
     description: "Срочные новости...",
-    url: "https://eduardzlobin.github.io/THELASTSIGNALB/",
+    url: "https://eduardzlobin.github.io/THELASTSIGNAL/",
     tags: ["новости", "news", "пицемания", "pi33emania", "SIGNAL", "сигнал", "снн", "CNN"]
   }
 ];
 
 
 console.log("SITES COUNT:", window.SITES_DATA.length);
+
 
 
 
