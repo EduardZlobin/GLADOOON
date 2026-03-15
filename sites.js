@@ -83,17 +83,18 @@ window.SITES_DATA = [
     tags: ["порно", "прон", "читы", "взлом", "админ", "пиратство", "18+", "+18", "porn", "pron", "моды", "майнкрафт"]
   },
   {
+    title: "RadioGladoon",
+    description: "лучшее радио в мире",
+    url: "https://eduardzlobin.github.io/RadioGladoon/",
+    tags: ["Radio", "Gladoon", "Гладун", "музыка", "трансляция", "радио"]
+  },
+  {
     title: "THELASTSIGNAL",
     description: "Срочные новости...",
-    url: "https://eduardzlobin.github.io/THELASTSIGNAL/",
+    url: "https://eduardzlobin.github.io/THELASTSIGNALB/",
     tags: ["новости", "news", "пицемания", "pi33emania", "SIGNAL", "сигнал", "снн", "CNN"]
   }
 ];
 
 
 console.log("SITES COUNT:", window.SITES_DATA.length);
-
-
-
-
-
