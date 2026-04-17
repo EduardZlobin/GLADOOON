@@ -75,8 +75,8 @@ const APP = (document.body.dataset.app || "gladoon").toLowerCase();
 const IS_SKIBI = APP.includes("skibi");
 
 const WIFI_SSID = "WIFI-Pi33EMANIA";
-const WIFI_PASSWORD = process.env.IDI_NAXYI;
-const PACKET_PASSWORD = process.env.DO_ZABRODI;
+const WIFI_PASSWORD = "6Cf8Vg2Bh1Nj7Mk9"; 
+const PACKET_PASSWORD = "Oo3Pa5Sz0Dx6Cf8Vg2Bh1Nj7Mk9Lp3Qw5"; 
 
 const SECRET_NOTES_CODE = "d18ed182d183d0b1d0b5d0b120d094d0b8d0bcd0b020d093d0bbd0b0d0b4d183d0bd";
 const INTERNAL_NOTES_URL = "gladoon://notes";
